@@ -1,0 +1,30 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+
+  filelog:
+    include:
+      - ./logs/app.log
+    start_at: beginning
+
+    operators:
+      - type: json_parser
+
+exporters:
+  logging:
+    loglevel: info
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog]
+      exporters: [logging]
+
+    traces:
+      receivers: [otlp]
+      exporters: [logging]
+
+    metrics:
+      receivers: [otlp]
+      exporters: [logging]

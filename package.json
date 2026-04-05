@@ -1,0 +1,25 @@
+{
+  "name": "k9automation",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "code to automate the actions of a doctor who k9 robot. ",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Daugherty (github dpd-30)",
+  "license": "MIT",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.72.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.214.0",
+    "@opentelemetry/instrumentation-pino": "^0.60.0",
+    "@opentelemetry/sdk-node": "^0.214.0",
+    "express": "^5.2.1",
+    "pino": "^10.3.1"
+  }
+}
