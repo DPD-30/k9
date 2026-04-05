@@ -37,9 +37,9 @@ jobs:
           VALIDATE_TRIVY: true
           VALIDATE_GITLEAKS: true
           VALIDATE_XML: true
-          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.json
+          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.js
           LINTER_RULES_PATH: .
-          
+
   build:
     runs-on: ubuntu-latest
     needs: lint
