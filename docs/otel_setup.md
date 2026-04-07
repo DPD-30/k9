@@ -1,3 +1,5 @@
+# open etelemetry collecter setup
+
 docker run \
   -p 4318:4318 \
   -v $(pwd)/logs:/logs \
