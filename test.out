@@ -1,0 +1,670 @@
+
+> k9automation@0.0.1 test
+> node --test src/**/*.test.js
+
+TAP version 13
+# Subtest: RobotController
+    # Subtest: initialization
+        # Subtest: should initialize with motor controller
+        ok 1 - should initialize with motor controller
+          ---
+          duration_ms: 2.000589
+          type: 'test'
+          ...
+        # Subtest: should fail if motor controller initialization fails
+        ok 2 - should fail if motor controller initialization fails
+          ---
+          duration_ms: 0.400329
+          type: 'test'
+          ...
+        # Subtest: should emit stateChanged event on enable
+        ok 3 - should emit stateChanged event on enable
+          ---
+          duration_ms: 0.407915
+          type: 'test'
+          ...
+        1..3
+    ok 1 - initialization
+      ---
+      duration_ms: 3.470071
+      type: 'suite'
+      ...
+    # Subtest: control loop
+        # Subtest: should start and stop control loop
+        ok 1 - should start and stop control loop
+          ---
+          duration_ms: 102.485666
+          type: 'test'
+          ...
+        # Subtest: should not start twice
+        ok 2 - should not start twice
+          ---
+          duration_ms: 0.901854
+          type: 'test'
+          ...
+        1..2
+    ok 2 - control loop
+      ---
+      duration_ms: 103.960357
+      type: 'suite'
+      ...
+    # Subtest: enable/disable
+        # Subtest: should enable robot
+        ok 1 - should enable robot
+          ---
+          duration_ms: 0.743255
+          type: 'test'
+          ...
+        # Subtest: should disable robot
+        ok 2 - should disable robot
+          ---
+          duration_ms: 0.709212
+          type: 'test'
+          ...
+        # Subtest: should not enable when E-stop is active
+        ok 3 - should not enable when E-stop is active
+          ---
+          duration_ms: 0.680766
+          type: 'test'
+          ...
+        1..3
+    ok 3 - enable/disable
+      ---
+      duration_ms: 2.770315
+      type: 'suite'
+      ...
+    # Subtest: emergency stop
+        # Subtest: should trigger E-stop and stop motors
+        ok 1 - should trigger E-stop and stop motors
+          ---
+          duration_ms: 0.780044
+          type: 'test'
+          ...
+        # Subtest: should require E-stop reset before re-enable
+        ok 2 - should require E-stop reset before re-enable
+          ---
+          duration_ms: 0.678116
+          type: 'test'
+          ...
+        # Subtest: should emit emergencyStop event
+        ok 3 - should emit emergencyStop event
+          ---
+          duration_ms: 0.521148
+          type: 'test'
+          ...
+        1..3
+    ok 4 - emergency stop
+      ---
+      duration_ms: 2.151804
+      type: 'suite'
+      ...
+    # Subtest: speed ramping
+        # Subtest: should ramp up speed gradually
+        ok 1 - should ramp up speed gradually
+          ---
+          duration_ms: 61.380122
+          type: 'test'
+          ...
+        # Subtest: should apply deadband
+        ok 2 - should apply deadband
+          ---
+          duration_ms: 0.698381
+          type: 'test'
+          ...
+        1..2
+    ok 5 - speed ramping
+      ---
+      duration_ms: 62.317071
+      type: 'suite'
+      ...
+    # Subtest: input timeout
+        # Subtest: should detect input timeout and stop driving
+        ok 1 - should detect input timeout and stop driving
+          ---
+          duration_ms: 152.751619
+          type: 'test'
+          ...
+        # Subtest: should reset timeout on new input
+        ok 2 - should reset timeout on new input
+          ---
+          duration_ms: 152.844659
+          type: 'test'
+          ...
+        1..2
+    ok 6 - input timeout
+      ---
+      duration_ms: 305.94492
+      type: 'suite'
+      ...
+    # Subtest: battery monitoring
+        # Subtest: should detect low battery warning
+        ok 1 - should detect low battery warning
+          ---
+          duration_ms: 0.727982
+          type: 'test'
+          ...
+        # Subtest: should detect critical battery and trigger E-stop
+        ok 2 - should detect critical battery and trigger E-stop
+          ---
+          duration_ms: 0.628227
+          type: 'test'
+          ...
+        1..2
+    ok 7 - battery monitoring
+      ---
+      duration_ms: 1.552672
+      type: 'suite'
+      ...
+    # Subtest: getStatus
+        # Subtest: should return full status object
+        ok 1 - should return full status object
+          ---
+          duration_ms: 0.362984
+          type: 'test'
+          ...
+        1..1
+    ok 8 - getStatus
+      ---
+      duration_ms: 0.472557
+      type: 'suite'
+      ...
+    # Subtest: dispose
+        # Subtest: should clean up resources
+        ok 1 - should clean up resources
+          ---
+          duration_ms: 0.486541
+          type: 'test'
+          ...
+        1..1
+    ok 9 - dispose
+      ---
+      duration_ms: 0.578325
+      type: 'suite'
+      ...
+    1..9
+ok 1 - RobotController
+  ---
+  duration_ms: 484.471717
+  type: 'suite'
+  ...
+# Subtest: StateMachine
+    # Subtest: initialization
+        # Subtest: should start in DISABLED state
+        ok 1 - should start in DISABLED state
+          ---
+          duration_ms: 0.807924
+          type: 'test'
+          ...
+        # Subtest: should emit initialized event
+        ok 2 - should emit initialized event
+          ---
+          duration_ms: 0.2315
+          type: 'test'
+          ...
+        # Subtest: should clear history on initialize
+        ok 3 - should clear history on initialize
+          ---
+          duration_ms: 0.358253
+          type: 'test'
+          ...
+        1..3
+    ok 1 - initialization
+      ---
+      duration_ms: 2.304218
+      type: 'suite'
+      ...
+    # Subtest: state transitions
+        # Subtest: should transition DISABLED -> ENABLED
+        ok 1 - should transition DISABLED -> ENABLED
+          ---
+          duration_ms: 0.208341
+          type: 'test'
+          ...
+        # Subtest: should transition ENABLED -> DRIVING
+        ok 2 - should transition ENABLED -> DRIVING
+          ---
+          duration_ms: 0.238977
+          type: 'test'
+          ...
+        # Subtest: should transition DRIVING -> ENABLED (stop driving)
+        ok 3 - should transition DRIVING -> ENABLED (stop driving)
+          ---
+          duration_ms: 0.292468
+          type: 'test'
+          ...
+        # Subtest: should transition ENABLED -> DISABLED
+        ok 4 - should transition ENABLED -> DISABLED
+          ---
+          duration_ms: 0.167432
+          type: 'test'
+          ...
+        1..4
+    ok 2 - state transitions
+      ---
+      duration_ms: 1.327567
+      type: 'suite'
+      ...
+    # Subtest: emergency stop
+        # Subtest: should transition to E_STOP from any active state
+        ok 1 - should transition to E_STOP from any active state
+          ---
+          duration_ms: 0.270586
+          type: 'test'
+          ...
+        # Subtest: should not allow direct transition E_STOP -> ENABLED
+        ok 2 - should not allow direct transition E_STOP -> ENABLED
+          ---
+          duration_ms: 1.247392
+          type: 'test'
+          ...
+        # Subtest: should allow E_STOP -> DISABLED via resetEStop
+        ok 3 - should allow E_STOP -> DISABLED via resetEStop
+          ---
+          duration_ms: 0.373971
+          type: 'test'
+          ...
+        # Subtest: should emit stateChanged event on E-stop
+        ok 4 - should emit stateChanged event on E-stop
+          ---
+          duration_ms: 0.297485
+          type: 'test'
+          ...
+        1..4
+    ok 3 - emergency stop
+      ---
+      duration_ms: 2.518091
+      type: 'suite'
+      ...
+    # Subtest: fault handling
+        # Subtest: should transition to FAULT from any state
+        ok 1 - should transition to FAULT from any state
+          ---
+          duration_ms: 0.21391
+          type: 'test'
+          ...
+        # Subtest: should include faultCode in context
+        ok 2 - should include faultCode in context
+          ---
+          duration_ms: 0.10913
+          type: 'test'
+          ...
+        # Subtest: should not allow direct FAULT -> ENABLED
+        ok 3 - should not allow direct FAULT -> ENABLED
+          ---
+          duration_ms: 0.104792
+          type: 'test'
+          ...
+        # Subtest: should allow FAULT -> DISABLED via clearFault
+        ok 4 - should allow FAULT -> DISABLED via clearFault
+          ---
+          duration_ms: 0.135531
+          type: 'test'
+          ...
+        1..4
+    ok 4 - fault handling
+      ---
+      duration_ms: 0.785903
+      type: 'suite'
+      ...
+    # Subtest: transition denial
+        # Subtest: should deny E_STOP -> ENABLED directly
+        ok 1 - should deny E_STOP -> ENABLED directly
+          ---
+          duration_ms: 0.19083
+          type: 'test'
+          ...
+        # Subtest: should emit transitionDenied event
+        ok 2 - should emit transitionDenied event
+          ---
+          duration_ms: 0.149943
+          type: 'test'
+          ...
+        1..2
+    ok 5 - transition denial
+      ---
+      duration_ms: 0.427489
+      type: 'suite'
+      ...
+    # Subtest: auto-drive on input
+        # Subtest: should auto-transition to DRIVING on input when ENABLED
+        ok 1 - should auto-transition to DRIVING on input when ENABLED
+          ---
+          duration_ms: 0.18584
+          type: 'test'
+          ...
+        # Subtest: should not auto-transition if disabled
+        ok 2 - should not auto-transition if disabled
+          ---
+          duration_ms: 0.095579
+          type: 'test'
+          ...
+        # Subtest: should not auto-transition if option disabled
+        ok 3 - should not auto-transition if option disabled
+          ---
+          duration_ms: 0.094131
+          type: 'test'
+          ...
+        1..3
+    ok 6 - auto-drive on input
+      ---
+      duration_ms: 0.472264
+      type: 'suite'
+      ...
+    # Subtest: input timeout handling
+        # Subtest: should transition DRIVING -> ENABLED on input timeout
+        ok 1 - should transition DRIVING -> ENABLED on input timeout
+          ---
+          duration_ms: 0.147561
+          type: 'test'
+          ...
+        # Subtest: should do nothing if not DRIVING
+        ok 2 - should do nothing if not DRIVING
+          ---
+          duration_ms: 0.086817
+          type: 'test'
+          ...
+        1..2
+    ok 7 - input timeout handling
+      ---
+      duration_ms: 0.315009
+      type: 'suite'
+      ...
+    # Subtest: state history
+        # Subtest: should track state history
+        not ok 1 - should track state history
+          ---
+          duration_ms: 1.050879
+          type: 'test'
+          location: '/Users/danield/Documents/localDev/k9/k9/src/control/StateMachine.test.js:250:5'
+          failureType: 'testCodeFailure'
+          error: |-
+            Expected values to be strictly equal:
+            + actual - expected
+            
+            + 'ENABLED'
+            - 'DISABLED'
+            
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: 'DISABLED'
+          actual: 'ENABLED'
+          operator: 'strictEqual'
+          stack: |-
+            TestContext.<anonymous> (file:///Users/danield/Documents/localDev/k9/k9/src/control/StateMachine.test.js:261:14)
+            Test.runInAsyncScope (node:async_hooks:214:14)
+            Test.run (node:internal/test_runner/test:1047:25)
+            Test.start (node:internal/test_runner/test:944:17)
+            node:internal/test_runner/test:1440:71
+            node:internal/per_context/primordials:466:82
+            new Promise (<anonymous>)
+            new SafePromise (node:internal/per_context/primordials:435:3)
+            node:internal/per_context/primordials:466:9
+            Array.map (<anonymous>)
+          ...
+        # Subtest: should limit history to 100 entries
+        ok 2 - should limit history to 100 entries
+          ---
+          duration_ms: 0.298396
+          type: 'test'
+          ...
+        # Subtest: should return limited history with getHistory(limit)
+        ok 3 - should return limited history with getHistory(limit)
+          ---
+          duration_ms: 0.099632
+          type: 'test'
+          ...
+        1..3
+    not ok 8 - state history
+      ---
+      duration_ms: 1.59496
+      type: 'suite'
+      location: '/Users/danield/Documents/localDev/k9/k9/src/control/StateMachine.test.js:249:3'
+      failureType: 'subtestsFailed'
+      error: '1 subtest failed'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: isStopped and isActive helpers
+        # Subtest: should return true for isStopped in DISABLED
+        ok 1 - should return true for isStopped in DISABLED
+          ---
+          duration_ms: 0.167819
+          type: 'test'
+          ...
+        # Subtest: should return true for isActive in ENABLED
+        ok 2 - should return true for isActive in ENABLED
+          ---
+          duration_ms: 0.087493
+          type: 'test'
+          ...
+        # Subtest: should return true for isActive in DRIVING
+        ok 3 - should return true for isActive in DRIVING
+          ---
+          duration_ms: 0.088022
+          type: 'test'
+          ...
+        # Subtest: should return true for isStopped in E_STOP
+        ok 4 - should return true for isStopped in E_STOP
+          ---
+          duration_ms: 0.717935
+          type: 'test'
+          ...
+        # Subtest: should return true for isStopped in FAULT
+        ok 5 - should return true for isStopped in FAULT
+          ---
+          duration_ms: 0.102458
+          type: 'test'
+          ...
+        1..5
+    ok 9 - isStopped and isActive helpers
+      ---
+      duration_ms: 1.314579
+      type: 'suite'
+      ...
+    1..9
+not ok 2 - StateMachine
+  ---
+  duration_ms: 12.225491
+  type: 'suite'
+  location: '/Users/danield/Documents/localDev/k9/k9/src/control/StateMachine.test.js:5:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: StubMotorController
+    # Subtest: initialization
+        # Subtest: should initialize successfully
+        ok 1 - should initialize successfully
+          ---
+          duration_ms: 0.833112
+          type: 'test'
+          ...
+        # Subtest: should return success if already initialized
+        ok 2 - should return success if already initialized
+          ---
+          duration_ms: 0.162605
+          type: 'test'
+          ...
+        # Subtest: should emit initialized event
+        ok 3 - should emit initialized event
+          ---
+          duration_ms: 0.383022
+          type: 'test'
+          ...
+        1..3
+    ok 1 - initialization
+      ---
+      duration_ms: 1.969882
+      type: 'suite'
+      ...
+    # Subtest: enable/disable
+        # Subtest: should enable when not faulted
+        ok 1 - should enable when not faulted
+          ---
+          duration_ms: 0.242199
+          type: 'test'
+          ...
+        # Subtest: should disable motors
+        ok 2 - should disable motors
+          ---
+          duration_ms: 0.354664
+          type: 'test'
+          ...
+        # Subtest: should not enable when faulted
+        ok 3 - should not enable when faulted
+          ---
+          duration_ms: 0.321165
+          type: 'test'
+          ...
+        1..3
+    ok 2 - enable/disable
+      ---
+      duration_ms: 1.259352
+      type: 'suite'
+      ...
+    # Subtest: setSpeed
+        # Subtest: should set motor speeds
+        ok 1 - should set motor speeds
+          ---
+          duration_ms: 0.337118
+          type: 'test'
+          ...
+        # Subtest: should clamp speeds to valid range
+        ok 2 - should clamp speeds to valid range
+          ---
+          duration_ms: 0.155923
+          type: 'test'
+          ...
+        # Subtest: should fail when not initialized
+        ok 3 - should fail when not initialized
+          ---
+          duration_ms: 1.293988
+          type: 'test'
+          ...
+        # Subtest: should fail when disabled
+        ok 4 - should fail when disabled
+          ---
+          duration_ms: 0.242699
+          type: 'test'
+          ...
+        # Subtest: should emit speedChanged event
+        ok 5 - should emit speedChanged event
+          ---
+          duration_ms: 0.169373
+          type: 'test'
+          ...
+        1..5
+    ok 3 - setSpeed
+      ---
+      duration_ms: 2.593157
+      type: 'suite'
+      ...
+    # Subtest: stop
+        # Subtest: should stop both motors
+        ok 1 - should stop both motors
+          ---
+          duration_ms: 0.179271
+          type: 'test'
+          ...
+        # Subtest: should emit stopped event
+        ok 2 - should emit stopped event
+          ---
+          duration_ms: 0.148028
+          type: 'test'
+          ...
+        1..2
+    ok 4 - stop
+      ---
+      duration_ms: 0.427277
+      type: 'suite'
+      ...
+    # Subtest: emergencyStop
+        # Subtest: should stop motors and disable
+        ok 1 - should stop motors and disable
+          ---
+          duration_ms: 0.15541
+          type: 'test'
+          ...
+        # Subtest: should emit emergencyStop event
+        ok 2 - should emit emergencyStop event
+          ---
+          duration_ms: 0.133391
+          type: 'test'
+          ...
+        1..2
+    ok 5 - emergencyStop
+      ---
+      duration_ms: 0.381096
+      type: 'suite'
+      ...
+    # Subtest: telemetry
+        # Subtest: should return telemetry object
+        ok 1 - should return telemetry object
+          ---
+          duration_ms: 0.164759
+          type: 'test'
+          ...
+        # Subtest: should emit telemetryUpdate events
+        ok 2 - should emit telemetryUpdate events
+          ---
+          duration_ms: 44.45187
+          type: 'test'
+          ...
+        # Subtest: should allow setting simulated voltage
+        ok 3 - should allow setting simulated voltage
+          ---
+          duration_ms: 0.224383
+          type: 'test'
+          ...
+        1..3
+    ok 6 - telemetry
+      ---
+      duration_ms: 45.043692
+      type: 'suite'
+      ...
+    # Subtest: fault handling
+        # Subtest: should simulate fault
+        ok 1 - should simulate fault
+          ---
+          duration_ms: 0.251454
+          type: 'test'
+          ...
+        # Subtest: should clear fault
+        ok 2 - should clear fault
+          ---
+          duration_ms: 0.309997
+          type: 'test'
+          ...
+        1..2
+    ok 7 - fault handling
+      ---
+      duration_ms: 0.677982
+      type: 'suite'
+      ...
+    # Subtest: dispose
+        # Subtest: should clean up resources
+        ok 1 - should clean up resources
+          ---
+          duration_ms: 0.239967
+          type: 'test'
+          ...
+        1..1
+    ok 8 - dispose
+      ---
+      duration_ms: 0.323705
+      type: 'suite'
+      ...
+    1..8
+ok 3 - StubMotorController
+  ---
+  duration_ms: 54.382241
+  type: 'suite'
+  ...
+1..3
+# tests 70
+# suites 29
+# pass 69
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 654.553452

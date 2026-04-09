@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { scanRemotes } from 'wiinode';
+import { scanRemotes } from '@dpd-30/wiinode';
 
 /**
  * Wiimote input handler for the K9 robot.

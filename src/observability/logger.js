@@ -22,10 +22,15 @@ function traceMixin() {
   };
 }
 
-// ---- file destination ----
-const destination = pino.destination({
+// ---- multi-stream: stdout + file ----
+const fileDestination = pino.destination({
   dest: path.join(logDir, 'app.log'),
-  sync: false, // async = better performance
+  sync: false,
+});
+
+const stdoutStream = pino.destination({
+  dest: 1, // stdout
+  sync: false,
 });
 
 export const logger = pino({
@@ -45,4 +50,7 @@ export const logger = pino({
       return { level: label };
     },
   },
-}, destination);
+}, pino.multistream([
+  { stream: stdoutStream, level: env.logLevel },
+  { stream: fileDestination, level: env.logLevel },
+]));

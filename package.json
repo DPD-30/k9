@@ -25,6 +25,8 @@
   "author": "Daniel Daugherty (github dpd-30)",
   "license": "MIT",
   "dependencies": {
+    "@dpd-30/wiinode": "^0.1.0",
+    "brickpi3": "^0.9.8",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/auto-instrumentations-node": "^0.72.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
