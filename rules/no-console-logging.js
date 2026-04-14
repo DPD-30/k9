@@ -49,7 +49,7 @@ export default {
             node,
             message: 'Add import statement for pino logger.',
             fix(fixer) {
-              return fixer.insertTextBefore(node, "import logger from '../observability/logger.js';\n\n");
+              return fixer.insertTextBefore(node, "import { logger } from '../observability/logger.js';\n\n");
             },
           });
         }
