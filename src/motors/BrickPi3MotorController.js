@@ -44,10 +44,12 @@ export class BrickPi3MotorController extends MotorController {
 
     // Map port names to BrickPi3 constants
     this._PORTS = {
-      PORT_A: 0,
-      PORT_B: 1,
-      PORT_C: 2,
-      PORT_D: 3,
+      
+      PORT_A: 0x01,
+      PORT_B: 0x02,
+      PORT_C: 0x04,
+      PORT_D: 0x08
+
     };
     logger.info('brickpi constructor done.')
   }
@@ -158,6 +160,7 @@ logger.info('init done')
    * @returns {Promise<{ success: boolean, error?: string }>}
    */
   async setSpeed(leftSpeed, rightSpeed) {
+    logger.debug(this.enabled,'set speed motor controler')
     if (!this._initialized) {
       return { success: false, error: 'Motor controller not initialized' };
     }
@@ -179,9 +182,9 @@ logger.info('init done')
     try {
       const leftPort = this._getPort(this.options.leftMotorPort);
       const rightPort = this._getPort(this.options.rightMotorPort);
-
+   
       // Set motor power
-      await this._bp.set_motor_power(leftPort, leftPower);
+      await this._bp.set_motor_power(this._bp.PORT_A, leftPower);
       await this._bp.set_motor_power(rightPort, rightPower);
 
       const oldLeft = this._leftSpeed;
@@ -193,7 +196,7 @@ logger.info('init done')
       // Update telemetry
       this._telemetry.leftSpeed = leftSpeed;
       this._telemetry.rightSpeed = rightSpeed;
-
+      logger.trace({leftpower: leftPower, Rightpower: rightPower, left: leftSpeed, right: rightSpeed, oldleft:leftSpeed, oldRight: oldRight, lport:leftPort, rport:rightPort}, 'brickpi speedupdate ')
       this.emit('speedChanged', { leftSpeed, rightSpeed, oldLeft, oldRight });
 
       return { success: true };
@@ -256,9 +259,9 @@ logger.info('init done')
    * @returns {Promise<void>}
    */
   async disable() {
+    await this.stop();
     this._enabled = false;
     this._telemetry.enabled = false;
-    await this.stop();
     this.emit('disabled');
   }
 
@@ -284,7 +287,7 @@ logger.info('init done')
    */
   async readBatteryVoltage() {
     try {
-      const voltage = await this._bp.get_voltage_battery();
+      const voltage = this._bp.get_voltage_battery();
       this._telemetry.voltage = voltage;
       return voltage;
     } catch (err) {

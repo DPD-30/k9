@@ -85,7 +85,6 @@ export class RobotController extends EventEmitter {
         this._setupInputListeners();
       }
 
-      this._stateMachine.enable({ source: 'initialize' });
       logger.info('Robot controller initialized');
 
       return { success: true };
@@ -106,6 +105,9 @@ export class RobotController extends EventEmitter {
 
       // Handle state-specific actions
       switch (event.to) {
+        case RobotState.ENABLED:
+          this._handleEnabled();
+          break;
         case RobotState.DISABLED:
           this._handleDisabled();
           break;
@@ -124,17 +126,28 @@ export class RobotController extends EventEmitter {
    * @private
    */
   _setupInputListeners() {
+    logger.debug('Setting up input listeners');
+
     // E-stop from input (Z button on Nunchuk, Home button on Wiimote)
-    this._inputProvider.on('nunchuk-z', () => {
+    this._inputProvider.on('nunchuk-z', (data) => {
+      logger.debug({ data }, 'nunchuk-z event received');
       this._triggerEStop({ source: 'nunchuk-z-button' });
     });
 
-    this._inputProvider.on('home', () => {
+    this._inputProvider.on('home', (data) => {
+      logger.debug({ data }, 'home event received');
       this._triggerEStop({ source: 'home-button' });
     });
 
     // General input received
     this._inputProvider.on('button', (event) => {
+      logger.debug({ event }, 'button event received');
+      this._handleInputReceived();
+    });
+
+    // Nunchuk stick motion
+    this._inputProvider.on('stick', (data) => {
+      logger.debug({ data }, 'stick event received');
       this._handleInputReceived();
     });
 
@@ -146,10 +159,19 @@ export class RobotController extends EventEmitter {
   }
 
   /**
+   * Handle ENABLED state entry.
+   * @private
+   */
+  _handleEnabled() {
+    this._motorController.enable();
+  }
+
+  /**
    * Handle DISABLED state entry.
    * @private
    */
   _handleDisabled() {
+    this._motorController.disable();
     this._targetLeftSpeed = 0;
     this._targetRightSpeed = 0;
     this._inputTimeoutActive = false;
@@ -165,6 +187,10 @@ export class RobotController extends EventEmitter {
     this._eStopActive = true;
     this._targetLeftSpeed = 0;
     this._targetRightSpeed = 0;
+    this._currentLeftSpeed = 0;
+    this._currentRightSpeed = 0;
+    // Hard emergency stop - immediate cut to motors
+    this._motorController.emergencyStop();
     this.emit('emergencyStop', context);
   }
 
@@ -185,26 +211,27 @@ export class RobotController extends EventEmitter {
    * @private
    */
   _handleInputReceived() {
+    const currentState = this._stateMachine.getState();
+    logger.debug({ currentState }, 'Input received');
     this._lastInputTime = Date.now();
     this._inputTimeoutActive = false;
 
     // Auto-transition to DRIVING if enabled
     if (this._stateMachine.isInState(RobotState.ENABLED)) {
-      this._stateMachine.handleInput({});
+      logger.debug('Transitioning to DRIVING state');
+      const result = this._stateMachine.handleInput({});
+      logger.debug({ result }, 'handleInput result');
     }
   }
 
   /**
    * Handle input provider lost/disconnected.
+   * Triggers emergency stop - loss of control is a safety-critical event.
    * @private
    */
   _handleInputLost() {
-    if (this._stateMachine.isInState(RobotState.DRIVING)) {
-      this._stateMachine.handleInputTimeout();
-      this._inputTimeoutActive = true;
-      this._targetLeftSpeed = 0;
-      this._targetRightSpeed = 0;
-    }
+    logger.warn('Input provider lost - triggering emergency stop');
+    this._triggerEStop({ source: 'input-lost' });
   }
 
   /**
@@ -268,7 +295,6 @@ export class RobotController extends EventEmitter {
 
     // Update battery voltage if motor controller provides it
     await this._updateBatteryStatus();
-
     // Process based on state
     switch (state) {
       case RobotState.DISABLED:
@@ -282,6 +308,7 @@ export class RobotController extends EventEmitter {
 
       case RobotState.DRIVING:
         // Actively driving - process input and apply ramping
+        logger.info({state},'in control loop driving')
         await this._processDriving();
         break;
 
@@ -298,10 +325,23 @@ export class RobotController extends EventEmitter {
   }
 
   /**
-   * Check for input timeout.
+   * Check for input timeout - only triggers on actual signal loss,
+   * not when stick is held steady.
    * @private
    */
   _checkInputTimeout() {
+    // Check if there's active input (stick being held)
+    const activeInput = this._getActiveInputState();
+    const hasActiveInput = activeInput && (activeInput.stickX !== 0 || activeInput.stickY !== 0);
+
+    // If stick is being held, refresh the input timer
+    if (hasActiveInput) {
+      this._lastInputTime = Date.now();
+      this._inputTimeoutActive = false;
+      return;
+    }
+
+    // No active input - check for timeout
     if (!this._lastInputTime) {
       return;
     }
@@ -317,6 +357,18 @@ export class RobotController extends EventEmitter {
         this._targetRightSpeed = 0;
       }
     }
+  }
+
+  /**
+   * Get current input state from provider.
+   * @private
+   * @returns {object|null}
+   */
+  _getActiveInputState() {
+    if (!this._inputProvider) {
+      return null;
+    }
+    return this._inputProvider.getState?.() || this._inputProvider.state;
   }
 
   /**
@@ -359,8 +411,11 @@ export class RobotController extends EventEmitter {
   async _applySpeedRamping() {
     const dt = this.options.loopIntervalMs / 1000; // Delta time in seconds
 
-    // Calculate ramp step based on current rate
-    const rampStep = this.options.decelRate * dt;
+    // Calculate ramp step - use accelRate when increasing speed, decelRate when decreasing
+    const isAccelerating = Math.abs(this._targetLeftSpeed) > Math.abs(this._currentLeftSpeed) ||
+                           Math.abs(this._targetRightSpeed) > Math.abs(this._currentRightSpeed);
+    const rampRate = isAccelerating ? this.options.accelRate : this.options.decelRate;
+    const rampStep = rampRate * dt;
 
     // Ramp left speed
     if (this._currentLeftSpeed > this._targetLeftSpeed) {
@@ -375,20 +430,13 @@ export class RobotController extends EventEmitter {
     } else if (this._currentRightSpeed < this._targetRightSpeed) {
       this._currentRightSpeed = Math.min(this._targetRightSpeed, this._currentRightSpeed + rampStep);
     }
-
-    // Apply deadband - if close to zero, snap to zero
-    const deadband = this.options.deadband;
-    if (Math.abs(this._currentLeftSpeed) < deadband) {
-      this._currentLeftSpeed = 0;
-    }
-    if (Math.abs(this._currentRightSpeed) < deadband) {
-      this._currentRightSpeed = 0;
-    }
-
+    logger.trace({motorenabled:this._motorController.isEnabled(),left:this._targetLeftSpeed,right:this._targetRightSpeed,currentleft:this._currentLeftSpeed,currentright:this._currentRightSpeed},'update speed data')
     // Command motors
     if (this._motorController && this._motorController.isEnabled()) {
-      await this._motorController.setSpeed(this._currentLeftSpeed, this._currentRightSpeed);
+      const speedChangedStatus = await this._motorController.setSpeed( this._currentLeftSpeed, this._currentRightSpeed);
+      logger.trace({speedChangedStatus},'applySpeedramping setspeed result.')
     }
+   
   }
 
   /**

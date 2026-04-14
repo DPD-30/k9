@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { scanRemotes } from '@dpd-30/wiinode';
+import { logger } from '../observability/logger.js';
 
 /**
  * Wiimote input handler for the K9 robot.
@@ -22,6 +23,9 @@ export class WiimoteInput extends EventEmitter {
     this.remote = null;
     this.connected = false;
     this.reconnectTimer = null;
+
+    // Heartbeat tracking - last time we received actual data from wiimote
+    this.lastInputTime = null;
 
     // Input state
     this.state = {
@@ -87,6 +91,7 @@ export class WiimoteInput extends EventEmitter {
       this._setupEventListeners();
       this._setupStateSync();
 
+      logger.debug({ player: this.player, nunchuk: this.remote.nunchukConnected }, 'Wiimote connected');
       this.emit('connected', { player: this.player, nunchuk: this.remote.nunchukConnected });
 
       return true;
@@ -189,6 +194,14 @@ export class WiimoteInput extends EventEmitter {
       this.emit('disconnected', { reason: 'remote_lost' });
       this._handleDisconnect();
     });
+
+    // Handle HID read errors (e.g., wiimote powered off)
+    this.remote.on('error', (err) => {
+      logger.warn({ error: err.message }, 'Wiimote remote error');
+      this.connected = false;
+      this.emit('disconnected', { reason: 'remote-error', error: err.message });
+      this._handleDisconnect();
+    });
   }
 
   /**
@@ -197,6 +210,13 @@ export class WiimoteInput extends EventEmitter {
    */
   _setupStateSync() {
     if (!this.remote) {return;}
+
+    logger.debug('Setting up Wiimote state sync');
+
+    // Track previous stick position for change detection
+    let prevStickX = 0;
+    let prevStickY = 0;
+    const stickDeadzone = 0.1; // Ignore small movements
 
     // Poll for analog values (stick, accelerometer)
     const syncInterval = setInterval(() => {
@@ -207,12 +227,31 @@ export class WiimoteInput extends EventEmitter {
 
       // Nunchuk stick (0-255 -> -1.0 to 1.0)
       if (this.remote.nunchukConnected) {
-        this.state.stickX = this._normalizeStick(this.remote.nunchukStickX);
-        this.state.stickY = this._normalizeStick(this.remote.nunchukStickY);
+        const rawX = this.remote.nunchukStickX;
+        const rawY = this.remote.nunchukStickY;
+        this.state.stickX = this._normalizeStick(rawX);
+        this.state.stickY = this._normalizeStick(rawY);
 
         this.state.nunchukAccelX = this._normalizeAccel(this.remote.nunchukAccelX);
         this.state.nunchukAccelY = this._normalizeAccel(this.remote.nunchukAccelY);
         this.state.nunchukAccelZ = this._normalizeAccel(this.remote.nunchukAccelZ);
+
+        // Emit event when stick moves significantly (for state machine transition)
+        const stickMoved = Math.abs(this.state.stickX - prevStickX) > stickDeadzone ||
+                           Math.abs(this.state.stickY - prevStickY) > stickDeadzone;
+        const stickActive = Math.abs(this.state.stickX) > stickDeadzone ||
+                            Math.abs(this.state.stickY) > stickDeadzone;
+
+       // logger.trace({ rawX, rawY, normX: this.state.stickX, normY: this.state.stickY, stickMoved, stickActive }, 'Nunchuk stick poll');
+
+        if (stickMoved && stickActive) {
+          logger.trace({ x: this.state.stickX, y: this.state.stickY }, 'Emitting stick event');
+          this.emit('stick', { x: this.state.stickX, y: this.state.stickY });
+          prevStickX = this.state.stickX;
+          prevStickY = this.state.stickY;
+        }
+      } else {
+        logger.debug('Nunchuk not connected');
       }
 
       // Wiimote accelerometer

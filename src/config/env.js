@@ -5,7 +5,7 @@ export const env = {
 
   otlpEndpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318',
 
-  logLevel: process.env.LOG_LEVEL || 'info',
+  logLevel: process.env.LOG_LEVEL || 'warn',
 
   // sampling: 1.0 = 100%, 0.1 = 10%
   // production: 0.01-0.1, development: 0.2-1.0
