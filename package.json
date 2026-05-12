@@ -27,26 +27,26 @@
   "license": "MIT",
   "dependencies": {
     "@dpd-30/wiinode": "^0.2.0",
-    "@opentelemetry/api": "^1.9.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.72.0",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.214.0",
-    "@opentelemetry/instrumentation-pino": "^0.60.0",
-    "@opentelemetry/sdk-node": "^0.214.0",
-    "@opentelemetry/semantic-conventions": "^1.34.0",
+    "i2c-bus": "^5.2.3",
+    "pca9685": "^5.0.0",
     "brickpi3": "^0.9.8",
     "express": "^5.2.1",
     "pino": "^10.3.1",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.75.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.214.0",
+    "@opentelemetry/instrumentation-pino": "^0.60.0",
+    "@opentelemetry/sdk-node": "^0.217.0",
+    "@opentelemetry/semantic-conventions": "^1.34.0",
     "ws": "^8.18.0"
-  },
+  }, 
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.6.0",
     "eslint": "^10.0.0",
-    "globals": "^17.4.0",
-    "knip": "^6.4.0",
-    "typescript": "^6.0.2"
+    "globals": "^17.4.0"
   },
+ 
   "engines": {
     "node": ">=20.0.0"
   }

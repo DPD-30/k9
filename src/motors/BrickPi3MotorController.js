@@ -221,12 +221,15 @@ logger.info('init done')
    * @returns {Promise<void>}
    */
   async emergencyStop() {
+    if (!this._bp) {
+      return;
+    }
     try {
       const leftPort = this._getPort(this.options.leftMotorPort);
       const rightPort = this._getPort(this.options.rightMotorPort);
 
       // Set motors to float (coast) mode for immediate stop
-      await this._bp.set_motor_power(leftPort, -128); // -128 = float/coast
+      await this._bp.set_motor_power(leftPort, -128);
       await this._bp.set_motor_power(rightPort, -128);
 
       this._leftSpeed = 0;
