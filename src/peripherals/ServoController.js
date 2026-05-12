@@ -20,11 +20,11 @@ export class ServoController {
 
     // Default calibration if config is missing (Safety defaults)
     this.calibration = config.servos || {
-      headPitch: { min: 500, max: 2500, trim: 0 },
-      earLeft:   { min: 500, max: 2500, trim: 0 },
-      earRight:  { min: 500, max: 2500, trim: 0 },
-      tailPan:   { min: 500, max: 2500, trim: 0 },
-      tailTilt:  { min: 500, max: 2500, trim: 0 },
+      headPitch: { min: 500, max: 2500, trim: 0, limitMin: -30, limitMax: 20 },
+      earLeft:   { min: 500, max: 2500, trim: 0, limitMin: -90, limitMax: 90 },
+      earRight:  { min: 500, max: 2500, trim: 0, limitMin: -90, limitMax: 90 },
+      tailPan:   { min: 500, max: 2500, trim: 0, limitMin: -45, limitMax: 45 },
+      tailTilt:  { min: 500, max: 2500, trim: 0, limitMin: -45, limitMax: 45 },
     };
   }
 
@@ -42,18 +42,28 @@ export class ServoController {
       throw new Error(`CRITICAL_CONFIG_ERROR: Unknown servo identifier '${servoName}'. Hardware mapping failed.`);
     }
 
-    // 1. Calculate raw pulse based on angle
-    const pulseRange = cal.max - cal.min;
-    let pulse = cal.min + (angle / 180) * pulseRange;
+    // 1. Logical Clamp: Limit the range of motion for the specific body part
+    let clampedAngle = angle;
+    if (cal.limitMin !== undefined && cal.limitMax !== undefined) {
+      clampedAngle = Math.max(cal.limitMin, Math.min(cal.limitMax, angle));
+    }
 
-    // 2. Apply trim (offset in microseconds)
+    if (clampedAngle !== angle) {
+      logger.debug(`Servo ${servoName} angle ${angle} logically clamped to ${clampedAngle}`);
+    }
+
+    // 2. Calculate raw pulse based on the (clamped) angle
+    const pulseRange = cal.max - cal.min;
+    let pulse = cal.min + (clampedAngle / 180) * pulseRange;
+
+    // 3. Apply trim (offset in microseconds)
     pulse += cal.trim;
 
-    // 3. HARD SAFETY CLAMP
+    // 4. HARD SAFETY CLAMP: Final check against absolute hardware limits
     const finalPulse = Math.max(cal.min, Math.min(cal.max, pulse));
 
     if (finalPulse !== pulse) {
-      logger.warn(`Servo ${servoName} angle ${angle} clamped to ${finalPulse}µs`);
+      logger.warn(`Servo ${servoName} pulse ${pulse}µs hard-clamped to ${finalPulse}µs`);
     }
 
     this.driver.setPulseLength(channel, Math.round(finalPulse));
